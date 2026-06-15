@@ -103,4 +103,3 @@ Transactions are matched to items using the `machineId` + `slotLabel` composite 
 ## Team
 
 CMSC-447 Software Engineering — Team 5, UMBC  
-Stakeholder: Erin McGonigle, Campus Card Services (CBOC/CBORD)

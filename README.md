@@ -95,6 +95,7 @@ Transactions are matched to items using the `machineId` + `slotLabel` composite 
 |---|---|
 | 🟢 Green | Restocked within the last 14 days / item quantity above threshold |
 | 🟠 Orange | Restocked 15–30 days ago / item quantity at or below threshold |
+| 🔴 Red | Completely out of stock |
 | ⚫ Gray | No restock date recorded / item quantity is zero |
 
 ---

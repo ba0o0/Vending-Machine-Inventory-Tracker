@@ -54,26 +54,6 @@ firebase emulators:start
 
 4. Open `http://localhost:5000` in your browser.
 
----
-
-## Features
-
-### Dashboard (`index.html`)
-- Lists all vending machines with status indicators (green / orange / gray based on last restock date)
-- **Add New Vending Machine** — upload a CSV or PDF inventory file to seed items, then create the machine in Firestore
-- **Upload Weekly Transaction Data** — upload a CSV of sales transactions to automatically decrement item quantities
-
-### Machine Detail (`machine.html`)
-- Shows all items in a machine as cards with slot label, price, quantity, low-stock threshold, and expiration date
-- Status dot per item: green (in stock), orange (at or below threshold), gray (empty)
-- Admins can **Edit** individual items
-
-### Auth (`login.html`)
-- Admin login via Firebase email/password
-- Guest access (no credentials required, read-only)
-
----
-
 ## CSV Formats
 
 ### Items File (for creating a machine)

@@ -23,26 +23,6 @@ VMIT provides two access levels:
 | Hosting | Firebase Hosting |
 | PDF Parsing | PDF.js (cdnjs) |
 
----
-
-## Project Structure
-
-```
-/
-├── index.html          # Main dashboard (vending machine list)
-├── machine.html        # Per-machine item detail view
-├── login.html          # Login / guest access page
-├── css/
-│   └── style.css       # Global styles
-├── js/
-│   ├── auth.js         # Shared auth/session helpers
-│   └── index.js        # Dashboard logic (machines, transactions, CSV/PDF parsing)
-│   └── machine.js      # Machine detail logic (items, edit modal)
-└── seed.js             # One-time Firestore seeding script (remove after use)
-```
-
----
-
 ## Getting Started
 
 ### Prerequisites
@@ -128,17 +108,6 @@ abc123,A2,1
 
 Transactions are matched to items using the `machineId` + `slotLabel` composite key.
 
----
-
-## Seeding Firestore
-
-`seed.js` is included for initial data population. To use it:
-
-1. Uncomment the `<script>` tag referencing `seed.js` in `index.html`
-2. Load the page once — it will insert a test machine and item into Firestore
-3. Re-comment or remove the script tag immediately after
-
----
 
 ## Status Indicators
 

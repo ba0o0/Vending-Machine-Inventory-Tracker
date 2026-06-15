@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UMBC VMIT Login</title>
+
+    <script defer src="/__/firebase/12.10.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/12.10.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script defer src="js/auth.js"></script>
+  </head>
+
+  <body class="auth-page">
+    <header>
+      <div class="logo">UMBC <span>VMIT</span></div>
+      <div class="header-actions">
+        <span class="role-pill">Not signed in</span>
+      </div>
+    </header>
+
+    <div class="auth-shell">
+      <div class="auth-card">
+        <p class="auth-subtitle" style="margin-bottom:22px;">Choose guest view or admin sign-in.</p>
+
+        <div id="login-error" class="auth-error" aria-live="polite"></div>
+
+        <form id="admin-form" class="auth-form">
+          <label for="email">Admin Email</label>
+          <input id="email" type="email" autocomplete="username" required />
+
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+
+          <button id="admin-login-btn" type="submit" class="auth-btn auth-btn-admin">
+            Login as Admin
+          </button>
+        </form>
+
+        <div class="auth-divider">or</div>
+
+        <button id="guest-btn" class="auth-btn auth-btn-guest" type="button">
+          Continue as Guest
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function setLoginError(message) {
+        const err = document.getElementById("login-error");
+        err.textContent = message || "";
+      }
+
+      function setBusy(busy) {
+        const adminBtn = document.getElementById("admin-login-btn");
+        const guestBtn = document.getElementById("guest-btn");
+        adminBtn.disabled = busy;
+        guestBtn.disabled = busy;
+      }
+
+      function firebaseFriendlyError(err) {
+        if (!err || !err.code) {
+          return "Login failed. Please try again.";
+        }
+        if (err.code === "auth/invalid-credential") {
+          return "Invalid email or password.";
+        }
+        if (err.code === "auth/user-not-found") {
+          return "No admin account found for that email.";
+        }
+        if (err.code === "auth/wrong-password") {
+          return "Incorrect password.";
+        }
+        return err.message || "Login failed. Please try again.";
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!window.vmitAuth) {
+          setLoginError("Auth system did not load. Refresh and try again.");
+          return;
+        }
+
+        const existingRole = window.vmitAuth.getRole();
+        if (existingRole === "guest" || existingRole === "admin") {
+          window.location.replace("index.html");
+          return;
+        }
+
+        const form = document.getElementById("admin-form");
+        const guestBtn = document.getElementById("guest-btn");
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+          setLoginError("");
+
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+          if (!email || !password) {
+            setLoginError("Email and password are required.");
+            return;
+          }
+
+          try {
+            setBusy(true);
+            await window.vmitAuth.loginAsAdmin(email, password);
+            window.location.replace("index.html");
+          } catch (err) {
+            setLoginError(firebaseFriendlyError(err));
+          } finally {
+            setBusy(false);
+          }
+        });
+
+        guestBtn.addEventListener("click", async function () {
+          setLoginError("");
+          try {
+            setBusy(true);
+            await window.vmitAuth.continueAsGuest();
+            window.location.replace("index.html");
+          } catch (err) {
+            setLoginError("Unable to enter guest mode. Please refresh and retry.");
+          } finally {
+            setBusy(false);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

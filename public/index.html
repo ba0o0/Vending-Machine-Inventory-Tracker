@@ -1,0 +1,440 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UMBC VMIT</title>
+
+    <script>
+      (function () {
+        const role = sessionStorage.getItem("vmitRole");
+        if (role !== "guest" && role !== "admin") {
+          window.location.replace("login.html");
+        }
+      })();
+    </script>
+
+    <!-- Firebase SDKs -->
+    <script defer src="/__/firebase/12.10.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/12.10.0/firebase-auth-compat.js"></script>
+    <script
+      defer
+      src="/__/firebase/12.10.0/firebase-database-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/12.10.0/firebase-firestore-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/12.10.0/firebase-functions-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/12.10.0/firebase-messaging-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/12.10.0/firebase-storage-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/12.10.0/firebase-analytics-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/12.10.0/firebase-remote-config-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/12.10.0/firebase-performance-compat.js"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"
+    ></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <script defer src="js/auth.js"></script>
+    <!-- temporary: remove after seeding -->
+    <!--<script defer src="seed.js"></script> -->
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script defer src="js/index.js"></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <!-- HEADER -->
+    <header>
+      <div class="logo">UMBC <span>VMIT</span></div>
+      <div class="header-actions">
+        <div class="notif-anchor">
+          <button class="btn-header" id="notif-btn" type="button">Notis</button>
+          <div id="notif-panel" class="notif-panel hidden">
+            <div class="notif-panel-header">Notifications</div>
+            <div class="notif-list" id="notif-list">
+              <div class="notif-empty">No notifications.</div>
+            </div>
+          </div>
+        </div>
+        <div class="user-menu-anchor">
+          <button class="btn-header" id="user-menu-btn" type="button">
+            <span id="role-badge">Guest</span>
+          </button>
+          <div id="user-panel" class="user-panel hidden">
+            <div class="user-panel-row">
+              <span class="user-panel-label">Email</span>
+              <span id="user-email" class="user-panel-value">—</span>
+            </div>
+            <div class="user-panel-row">
+              <span class="user-panel-label">Permission</span>
+              <span id="user-permission" class="user-panel-value">Guest</span>
+            </div>
+            <div class="user-panel-footer">
+              <button id="logout-btn" class="btn-header" type="button">
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <button
+          class="btn-sidebar btn-sidebar-primary"
+          id="add-machine-btn"
+          data-edit-only
+          type="button"
+          aria-label="Add vending machine"
+        >
+          <span class="btn-sidebar-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+              <path d="M12 5v14"></path>
+              <path d="M5 12h14"></path>
+            </svg>
+          </span>
+          <span class="btn-sidebar-content">
+            <span class="btn-sidebar-title">Add Machine</span>
+            <span class="btn-sidebar-subtitle">Create a new machine</span>
+          </span>
+        </button>
+        <button
+          class="btn-sidebar btn-sidebar-secondary"
+          id="upload-txn-btn"
+          data-edit-only
+          type="button"
+          aria-label="Upload weekly transaction data"
+        >
+          <span class="btn-sidebar-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+              <path d="M12 19V7"></path>
+              <path d="M6 13l6-6 6 6"></path>
+            </svg>
+          </span>
+          <span class="btn-sidebar-content">
+            <span class="btn-sidebar-title">Upload Transactions</span>
+            <span class="btn-sidebar-subtitle">Import this week's report</span>
+          </span>
+        </button>
+        <button
+          class="btn-sidebar btn-sidebar-secondary"
+          id="analytics-btn"
+          type="button"
+          aria-label="Open analytics"
+          onclick="window.location.href = 'analytics.html'"
+        >
+          <span class="btn-sidebar-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+              <path d="M3 3v18h18"></path>
+              <path d="M7 14v-4"></path>
+              <path d="M12 17v-9"></path>
+              <path d="M17 11v-2"></path>
+            </svg>
+          </span>
+          <span class="btn-sidebar-content">
+            <span class="btn-sidebar-title">Analytics</span>
+            <span class="btn-sidebar-subtitle">View transaction trends</span>
+          </span>
+        </button>
+      </aside>
+
+      <!-- MAIN -->
+      <main id="main-content">
+        <section class="page-toolbar" aria-label="Machine list controls">
+          <div class="page-title-group">
+            <div class="page-eyebrow">Dashboard</div>
+            <h1 class="page-title">Machine Overview</h1>
+            <p class="page-subtitle">
+              Search and filter machines, then select one to view its inventory.
+            </p>
+          </div>
+          <div class="table-tools">
+            <input
+              id="machine-search"
+              class="tool-input"
+              type="search"
+              placeholder="Search by machine or location"
+              aria-label="Search machines"
+            />
+            <select
+              id="machine-filter"
+              class="tool-select"
+              aria-label="Filter machines by status"
+            >
+              <option value="all">All statuses</option>
+              <option value="green">Healthy</option>
+              <option value="yellow">Needs attention</option>
+              <option value="red">Overdue</option>
+            </select>
+            <div
+              id="machine-results-count"
+              class="results-count"
+              aria-live="polite"
+            ></div>
+          </div>
+        </section>
+        <div class="table-panel">
+          <div class="table-header">Vending Machine Table</div>
+          <div class="table-scroll">
+            <table class="vm-table">
+              <thead>
+                <tr>
+                  <th scope="col">Status</th>
+                  <th scope="col">Machine</th>
+                  <th scope="col">Location</th>
+                  <th scope="col">Restock</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="vm-tbody">
+                <tr>
+                  <td colspan="5" class="table-message">
+                    <span class="spinner"></span> Loading vending
+                    machines&hellip;
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="status-bar"></div>
+      </main>
+    </div>
+
+    <div
+      id="machine-modal"
+      class="modal-backdrop hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="machine-modal-title"
+    >
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="machine-modal-title">Create Vending Machine</h2>
+          <button id="modal-close-btn" class="modal-close" type="button">
+            &times;
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-grid">
+            <label for="machine-name-input">Machine Name</label>
+            <input
+              id="machine-name-input"
+              class="modal-input"
+              type="text"
+              placeholder="Ex: Library 1st Floor"
+            />
+
+            <label for="machine-location-input">Location</label>
+            <input
+              id="machine-location-input"
+              class="modal-input"
+              type="text"
+              placeholder="Ex: Albin O. Kuhn Library"
+            />
+
+            <label for="machine-restock-input">Last Restocked</label>
+            <input id="machine-restock-input" class="modal-input" type="date" />
+
+            <label for="item-file-input">Items File (CSV or PDF)</label>
+            <input
+              id="item-file-input"
+              class="modal-input"
+              type="file"
+              accept=".csv,.pdf,text/csv,application/pdf"
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button id="parse-file-btn" class="btn-header" type="button">
+              Parse File
+            </button>
+            <button
+              id="create-empty-machine-btn"
+              class="btn-header"
+              type="button"
+            >
+              Create Empty Machine
+            </button>
+            <button
+              id="create-machine-btn"
+              class="btn-header"
+              type="button"
+              disabled
+            >
+              Create Machine
+            </button>
+          </div>
+
+          <div id="parse-status" class="modal-status">
+            Upload a CSV/PDF to preview machine items, or create an empty
+            machine.
+          </div>
+
+          <div id="preview-wrap" class="preview-wrap hidden">
+            <div class="preview-title">Parsed Items Preview</div>
+            <div class="preview-table-wrap">
+              <table class="preview-table">
+                <thead>
+                  <tr>
+                    <th>Row</th>
+                    <th>Product</th>
+                    <th>Vending Price</th>
+                  </tr>
+                </thead>
+                <tbody id="preview-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="txn-modal"
+      class="modal-backdrop hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="txn-modal-title"
+    >
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="txn-modal-title">Upload Weekly Transaction Data</h2>
+          <button id="txn-modal-close-btn" class="modal-close" type="button">
+            &times;
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-grid">
+            <label for="txn-machine-select">Machine to Update</label>
+            <select id="txn-machine-select" class="modal-input">
+              <option value="">Select a vending machine</option>
+            </select>
+
+            <label for="txn-file-input">Transaction File (CSV or PDF)</label>
+            <input
+              id="txn-file-input"
+              class="modal-input"
+              type="file"
+              accept=".csv,.pdf,text/csv,application/pdf"
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button id="txn-parse-btn" class="btn-header" type="button">
+              Parse File
+            </button>
+            <button
+              id="txn-apply-btn"
+              class="btn-header"
+              type="button"
+              disabled
+            >
+              Apply Transactions
+            </button>
+          </div>
+
+          <div id="txn-status" class="modal-status">
+            Upload a CSV/PDF to preview transaction updates.
+          </div>
+
+          <div id="txn-preview-wrap" class="preview-wrap hidden">
+            <div class="preview-title">Parsed Transactions Preview</div>
+            <div class="preview-table-wrap">
+              <table class="preview-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Maps To</th>
+                  </tr>
+                </thead>
+                <tbody id="txn-preview-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="edit-machine-modal"
+      class="modal-backdrop hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-machine-modal-title"
+    >
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="edit-machine-modal-title">Edit Vending Machine</h2>
+          <button
+            id="edit-machine-modal-close-btn"
+            class="modal-close"
+            type="button"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-grid">
+            <label for="edit-machine-name-input">Machine Name</label>
+            <input
+              id="edit-machine-name-input"
+              class="modal-input"
+              type="text"
+              placeholder="Ex: Library 1st Floor"
+            />
+
+            <label for="edit-machine-location-input">Location</label>
+            <input
+              id="edit-machine-location-input"
+              class="modal-input"
+              type="text"
+              placeholder="Ex: Albin O. Kuhn Library"
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button id="edit-machine-save-btn" class="btn-header" type="button">
+              Save Changes
+            </button>
+          </div>
+
+          <div id="edit-machine-status" class="modal-status">
+            Update machine details below.
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

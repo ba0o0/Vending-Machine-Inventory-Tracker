@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in [
+          "anguye22@umbc.edu",
+          "tbenzin1@umbc.edu",
+          "btran7@umbc.edu"
+        ];
+    }
+
+    match /vendingMachines/{machineId} {
+      allow read: if true;
+      allow write: if isAdmin();
+      match /restockEvents/{eventId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+
+    match /items/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /notifications/{notifId} {
+      // Only admins may read, create, or delete notifications
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /transactions/{docId} {
+      // Transactions are safe to read by guests for analytics.
+      allow read: if true;
+      // Only admins may write transaction documents.
+      allow write: if isAdmin();
+    }
+  }
+}

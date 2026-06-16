@@ -1,6 +1,6 @@
 # UMBC VMIT — Vending Machine Inventory Tracker
 
-A web-based dashboard for UMBC Campus Card Services staff to monitor vending machine inventory in real time, replacing manual spreadsheet-based workflows.
+A web-based dashboard for UMBC Campus Card Services staff to monitor vending machine inventory, replacing manual spreadsheet-based workflows by displays graphs and log analytics for item purchases
 
 ---
 
